@@ -1,89 +1,115 @@
-"""
-basic_consumer_case.py
+# basic_consumer_huntsman.py
 
+"""
 Read a log file as it is being written. 
+Process each message and perform analytics or alert on special conditions.
 """
 
 #####################################
 # Import Modules
 #####################################
 
-# Import packages from Python Standard Library
+# Import sys and os to adjust the Python path for module resolution
+import sys
 import os
-import time
 
-# Import functions from local modules
+# Add the project root directory to sys.path so the 'utils' module can be found
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))  # Go up one level to the project root
+sys.path.append(project_root)
+
+# Now import functions from the 'utils' module
 from utils.utils_logger import logger, get_log_file_path
+
+# Import standard library packages
+import time
 
 #####################################
 # Define a function to process a single message
-# #####################################
+#####################################
 
-
-def process_message(log_file) -> None:
+def process_message(log_file: str) -> None:
     """
-    Read a log file and process each message.
+    Read a log file in real-time and process each new message.
 
     Args:
         log_file (str): The path to the log file to read.
     """
-    with open(log_file, "r") as file:
-        # Move to the end of the file
-        file.seek(0, os.SEEK_END)
-        print("Consumer is ready and waiting for a new log message...")
+    try:
+        with open(log_file, "r") as file:
+            # Move to the end of the file to start reading new entries
+            file.seek(0, os.SEEK_END)
+            print("Consumer is ready and waiting for new log messages...")
 
-        # Use while True loop so the consumer keeps running forever
-        while True:
+            # Infinite loop to continuously read the file in real-time
+            while True:
+                current_position = file.tell()  # Get the current position in the file
+                line = file.readline()  # Read the next line
 
-            # Read the next line of the file
-            line = file.readline()
+                if not line:
+                    file.seek(current_position)  # Revert to the position where we last read
+                    print("No new log message, waiting...")  # Debugging: inform consumer is waiting
+                    time.sleep(1)  # Wait for a new line to be written
+                    continue
 
-            # If the line is empty, wait for a new log entry
-            if not line:
-                # Wait a second for a new log entry
-                delay_seconds = 1
-                time.sleep(delay_seconds)
-                # Keep checking for new log entries
-                continue
+                # Process the new log message
+                message = line.strip()  # Remove any extra whitespace
+                print(f"Consumed log message: {message}")  # Debugging: print the message
 
-            # We got a new log entry!
-            # Remove any leading/trailing white space and log the message
-            message = line.strip()
-            print(f"Consumed log message: {message}")
+                # Perform analytics or alerting on specific patterns in the message
+                perform_analytics(message)
 
-            # monitor and alert on special conditions
-            if "I just loved a movie! It was funny." in message:
-                print(f"ALERT: The special message was found! \n{message}")
-                logger.warning(f"ALERT: The special message was found! \n{message}")
-
+    except FileNotFoundError:
+        print(f"Error: The log file {log_file} was not found.")
+        logger.error(f"FileNotFoundError: The log file {log_file} was not found.")
+    except Exception as e:
+        print(f"Unexpected error occurred: {e}")
+        logger.error(f"Unexpected error occurred: {e}")
 
 #####################################
-# Define main function for this script.
+# Define a function to perform analytics or alerting
 #####################################
 
+def perform_analytics(message: str) -> None:
+    """
+    Perform real-time analytics on the log message and trigger alerts.
+
+    Args:
+        message (str): The log message to analyze.
+    """
+    # Example patterns to match (these can be customized)
+    if "ERROR" in message:
+        print(f"ALERT: Error detected! \n{message}")
+        logger.error(f"ALERT: Error detected! \n{message}")
+    
+    elif "WARNING" in message:
+        print(f"ALERT: Warning detected! \n{message}")
+        logger.warning(f"ALERT: Warning detected! \n{message}")
+    
+    # Example custom pattern (you can define any custom message here)
+    if "loved a movie!" in message:
+        print(f"ALERT: The special message was found! \n{message}")
+        logger.warning(f"ALERT: The special message was found! \n{message}")
+
+#####################################
+# Define main function for this script
+#####################################
 
 def main() -> None:
     """Main entry point."""
 
-    logger.info("START...")
+    logger.info("START consumer...")
 
-    # Call the function we imported from utils/utils_logger module
-    # to get the path to the log file being generated by the producer.
-    # Assign the return value to a local variable.
+    # Get the log file path from a utility function
     log_file_path = get_log_file_path()
-    logger.info(f"Reading file located at {log_file_path}.")
+    print(f"Reading from log file: {log_file_path}")  # Debugging: check the file path
+    logger.info(f"Reading from log file: {log_file_path}")
 
     try:
-        # Try to call the process_message function with the log file path
-        # as an argument. We know things will go wrong
-        # eventually when the user stops the process, so we use a try block.
         process_message(log_file_path)
-
     except KeyboardInterrupt:
         print("User stopped the process.")
-
-    logger.info("END.....")
-
+    
+    logger.info("END consumer.....")
 
 #####################################
 # Conditional Execution

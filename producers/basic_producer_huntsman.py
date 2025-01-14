@@ -1,12 +1,17 @@
-"""
-basic_generator_case.py
+# basic_producer_huntsman.py
 
-Generate some streaming buzz messages. 
+"""
+Generate some custom buzz messages for your producer.
 """
 
 #####################################
 # Import Modules
 #####################################
+
+# Fix: Add the project root to the sys.path so utils can be imported
+import sys
+import pathlib
+sys.path.append(str(pathlib.Path(__file__).resolve().parent.parent))  # Add project root to PYTHONPATH
 
 # Import packages from Python Standard Library
 import os
@@ -16,7 +21,7 @@ import time
 # Import external packages (must be installed in .venv first)
 from dotenv import load_dotenv
 
-# Import functions from local modules
+# Import functions from local modules (utils)
 from utils.utils_logger import logger
 
 #####################################
@@ -59,18 +64,17 @@ def get_message_interval() -> int:
 #####################################
 
 # Define some lists for generating buzz messages
-ADJECTIVES: list = ["amazing", "funny", "boring", "exciting", "weird"]
-ACTIONS: list = ["found", "saw", "tried", "shared", "loved"]
-TOPICS: list = ["a movie", "a meme", "an app", "a trick", "a story"]
+ADJECTIVES: list = ["incredible", "unbelievable", "hilarious", "mysterious", "bizarre"]
+ACTIONS: list = ["discovered", "watched", "experimented with", "shared", "tried"]
+TOPICS: list = ["a gadget", "an experience", "a game", "a new website", "a podcast"]
 
 #####################################
 # Define a function to generate buzz messages
 #####################################
 
-
 def generate_messages():
     """
-    Generate a stream of buzz messages.
+    Generate a stream of custom buzz messages.
 
     This function uses a generator, which yields one buzz at a time.
     Generators are memory-efficient because they produce items on the fly
@@ -83,13 +87,11 @@ def generate_messages():
         adjective = random.choice(ADJECTIVES)
         action = random.choice(ACTIONS)
         topic = random.choice(TOPICS)
-        yield f"I just {action} {topic}! It was {adjective}."
-
+        yield f"Guess what I just {action} about {topic}? It was {adjective}!"
 
 #####################################
 # Define main() function to run this producer.
 #####################################
-
 
 def main() -> None:
     """
@@ -118,7 +120,6 @@ def main() -> None:
 
     logger.info("NOTE: See the `logs` folder to learn more.")
     logger.info("END producer.....")
-
 
 #####################################
 # Conditional Execution

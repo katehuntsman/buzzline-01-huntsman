@@ -1,9 +1,12 @@
 # buzzline-01-case
 
 This project introduces streaming data. 
-The Python language includes generators - we'll use this feature to generate some streaming buzzline messages. 
-As the code runs, it will continuously update log file. 
-We'll use a consumer to modify this log file and alert us when a special message is detected. 
+
+The consumer (basic_consumer_huntsman.py) reads a log file as it’s written, processes new messages, and triggers alerts based on specific patterns like "ERROR" or custom messages such as "loved a movie!". It runs continuously, monitoring the log for new entries.
+
+The producer (basic_producer_huntsman.py) generates dynamic "buzz" messages at regular intervals, pulling from a pool of random adjectives, actions, and topics. The interval for message generation is configurable via an environment variable.
+
+Together, they form a real-time system where the producer generates log messages, and the consumer processes and reacts to them, ideal for testing or monitoring purposes.
 
 ## Task 1. Set Up Your Machine
 
@@ -63,17 +66,10 @@ In VS Code, open a terminal.
 Use the commands below to activate .venv, and run the generator as a module. 
 To learn more about why we run our Python file as a module, see [PYTHON-PKG-IMPORTS](docs/PYTHON-PKG-IMPORTS.md) 
 
-Windows PowerShell:
-
-```shell
-.venv\Scripts\activate
-py -m producers.basic_producer_case
-```
-
 Mac/Linux:
 ```zsh
 source .venv/bin/activate
-python3 -m producers.basic_producer_case
+python3 -m producers.basic_producer_huntsman
 ```
 
 ## Task 5. Monitor an Active Log File (Terminal 2)
@@ -84,16 +80,10 @@ This project has a consumer that reads and processes our own log file as log mes
 In VS Code, open a NEW terminal in your root project folder. 
 Use the commands below to activate .venv, and run the file as a module. 
 
-Windows:
-```shell
-.venv\Scripts\activate
-py -m consumers.basic_consumer_case.py
-```
-
 Mac/Linux:
 ```zsh
 source .venv/bin/activate
-python3 -m consumers.basic_consumer_case.py
+python3 -m consumers.basic_consumer_huntsman.py
 ```
 
 ## Save Space
